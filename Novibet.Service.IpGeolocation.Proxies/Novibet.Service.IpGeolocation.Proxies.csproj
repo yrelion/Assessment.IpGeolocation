@@ -2,10 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <UserSecretsId>4b3869bc-5b45-4ba1-8699-d95339dbb99c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Novibet.Service.IpGeolocation.Common\Novibet.Service.IpGeolocation.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

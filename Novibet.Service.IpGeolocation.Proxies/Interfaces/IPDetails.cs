@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Novibet.Service.IpGeolocation.Proxies.Abstractions
+﻿namespace Novibet.Service.IpGeolocation.Proxies.Interfaces
 {
     public interface IPDetails
     {
