@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Novibet.Service.IpGeolocation.Common.Abstractions;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 using RestSharp;
 
 namespace Novibet.Service.IpGeolocation.Common.Models
@@ -32,14 +32,12 @@ namespace Novibet.Service.IpGeolocation.Common.Models
         /// <param name="uri">The URI of the target resource</param>
         /// <param name="httpMethod">The <see cref="HttpMethod"/> to use</param>
         /// <param name="bodyObject">The object to pass to the request body</param>
-        public T Request<T>(string uri, HttpMethod httpMethod, object bodyObject = null)
+        public IRestResponse<T> Request<T>(string uri, HttpMethod httpMethod, object bodyObject = null)
         {
             var request = CreateRequestBase(uri, bodyObject);
             var response = ExecuteRequest<T>(request, httpMethod);
 
-            var deserializedResponse = JsonConvert.DeserializeObject<T>(response.Content);
-
-            return deserializedResponse;
+            return response;
         }
 
         /// <summary>

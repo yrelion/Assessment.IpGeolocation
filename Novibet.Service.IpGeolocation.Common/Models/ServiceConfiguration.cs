@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Novibet.Service.IpGeolocation.Common.Abstractions;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 
 namespace Novibet.Service.IpGeolocation.Common.Models
 {

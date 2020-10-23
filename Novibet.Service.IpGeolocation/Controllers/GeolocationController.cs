@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 
 namespace Novibet.Service.IpGeolocation.Controllers

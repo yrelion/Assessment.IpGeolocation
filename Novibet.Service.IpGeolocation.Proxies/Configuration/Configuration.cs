@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Novibet.Service.IpGeolocation.Common.Abstractions;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Proxies.Infrastructure;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 

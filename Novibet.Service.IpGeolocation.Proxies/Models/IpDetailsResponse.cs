@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
-using Novibet.Service.IpGeolocation.Proxies.Interfaces;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 
 namespace Novibet.Service.IpGeolocation.Proxies.Models
 {

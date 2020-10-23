@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Novibet.Service.IpGeolocation.Common.Abstractions;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 using RestSharp;
 
 namespace Novibet.Service.IpGeolocation.Proxies.Services
@@ -13,7 +13,7 @@ namespace Novibet.Service.IpGeolocation.Proxies.Services
         protected IServiceProxy Proxy { get; set; }
         protected string UriPrefix { get; set; }
 
-        protected T Request<T>(string uri, HttpMethod httpMethod, object bodyObject = null)
+        protected IRestResponse<T> Request<T>(string uri, HttpMethod httpMethod, object bodyObject = null)
         {
             return Proxy.Request<T>($"{UriPrefix}{uri}", httpMethod, bodyObject);
         }

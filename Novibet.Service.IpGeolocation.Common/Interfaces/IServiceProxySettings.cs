@@ -1,4 +1,4 @@
-﻿namespace Novibet.Service.IpGeolocation.Common.Abstractions
+﻿namespace Novibet.Service.IpGeolocation.Common.Interfaces
 {
     public interface IServiceProxySettings
     {

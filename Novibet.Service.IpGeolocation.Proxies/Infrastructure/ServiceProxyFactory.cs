@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Options;
-using Novibet.Service.IpGeolocation.Common.Abstractions;
 using Novibet.Service.IpGeolocation.Common.Factories;
+using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Common.Models;
 
 namespace Novibet.Service.IpGeolocation.Proxies.Infrastructure
