@@ -8,5 +8,10 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Novibet.Service.IpGeolocation.Common\Novibet.Service.IpGeolocation.Common.csproj" />
+    <ProjectReference Include="..\Novibet.Service.IpGeolocation.Proxies\Novibet.Service.IpGeolocation.Proxies.csproj" />
+  </ItemGroup>
+
 
 </Project>
