@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Novibet.Service.IpGeolocation", "Novibet.Service.IpGeolocation\Novibet.Service.IpGeolocation.csproj", "{07E47AD9-5364-4C07-AB1C-5C7FA8D8D0D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07E47AD9-5364-4C07-AB1C-5C7FA8D8D0D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07E47AD9-5364-4C07-AB1C-5C7FA8D8D0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07E47AD9-5364-4C07-AB1C-5C7FA8D8D0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07E47AD9-5364-4C07-AB1C-5C7FA8D8D0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE00BC22-345E-4C96-9372-F333FE418457}
+	EndGlobalSection
+EndGlobal
