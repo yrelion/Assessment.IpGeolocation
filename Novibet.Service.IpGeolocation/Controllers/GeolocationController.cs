@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Novibet.Service.IpGeolocation.Attributes;
-using Novibet.Service.IpGeolocation.Common.Interfaces;
+using Novibet.Service.IpGeolocation.Common.Models;
 using Novibet.Service.IpGeolocation.Core.Requests;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 
@@ -16,17 +16,15 @@ namespace Novibet.Service.IpGeolocation.Controllers
     [ApiController, HandleExceptions]
     public class GeolocationController : ControllerBase
     {
-        private readonly IIPInfoProvider _ipInfoProvider;
         private readonly IMediator _mediator;
 
-        public GeolocationController(IIPInfoProvider ipInfoProvider, IMediator mediator)
+        public GeolocationController(IMediator mediator)
         {
-            _ipInfoProvider = ipInfoProvider;
             _mediator = mediator;
         }
 
         [HttpGet("{ip}")]
-        [ProducesResponseType(typeof(IPDetails), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IPLookupDetails), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetails([FromRoute] string ip)
         {
             var query = new GetIpDetailsQuery(ip);
