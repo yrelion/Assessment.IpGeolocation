@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Novibet.Service.IpGeolocation.Core.Handlers;
 using Novibet.Service.IpGeolocation.Proxies.Configuration;
 
 namespace Novibet.Service.IpGeolocation.Configuration
@@ -21,6 +24,9 @@ namespace Novibet.Service.IpGeolocation.Configuration
 
             // Service Proxies
             services.AddRestProxies();
+
+            // Handlers
+            services.AddMediatR(typeof(BaseRequestHandler).GetTypeInfo().Assembly);
         }
     }
 }

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
+﻿using System.Net.Http;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Proxies.Configuration;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 using Novibet.Service.IpGeolocation.Proxies.Models;
-using Novibet.Service.IpGeolocation.Proxies.Services;
 
-namespace Novibet.Service.IpGeolocation.Proxies
+namespace Novibet.Service.IpGeolocation.Proxies.Services
 {
     public class IPInfoProvider : ServiceProxyBase, IIPInfoProvider
     {
