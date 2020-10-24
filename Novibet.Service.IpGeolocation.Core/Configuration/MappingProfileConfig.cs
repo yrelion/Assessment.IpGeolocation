@@ -15,6 +15,8 @@ namespace Novibet.Service.IpGeolocation.Core.Configuration
         {
             CreateMap<IPGeolocation, IpGeolocationProxyResponse>().ReverseMap();
             CreateMap<IPGeolocationDto, IPGeolocation>().ReverseMap();
+            CreateMap<IPGeolocationUpdateRequest, IPGeolocationDto>()
+                .ForMember(x => x.Id, source => source.MapFrom(x => x.Ip)).ReverseMap();
         }
     }
 }

@@ -8,7 +8,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
-using Novibet.Service.IpGeolocation.Core.Requests;
+using Novibet.Service.IpGeolocation.Core.Requests.Queries;
 using Novibet.Service.IpGeolocation.Data;
 using Novibet.Service.IpGeolocation.Data.Models;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;

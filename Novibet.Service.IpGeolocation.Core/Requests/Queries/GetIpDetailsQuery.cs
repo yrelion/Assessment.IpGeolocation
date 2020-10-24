@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MediatR;
+﻿using MediatR;
 using Novibet.Service.IpGeolocation.Common.Models;
 
-namespace Novibet.Service.IpGeolocation.Core.Requests
+namespace Novibet.Service.IpGeolocation.Core.Requests.Queries
 {
     public class GetIpDetailsQuery : IRequest<IPGeolocation>
     {
