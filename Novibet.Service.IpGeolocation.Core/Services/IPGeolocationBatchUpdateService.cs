@@ -16,20 +16,22 @@ namespace Novibet.Service.IpGeolocation.Core.Services
 
     public class IPGeolocationBatchUpdateService : BackgroundService
     {
+        public ObservableCollection<GeolocationBatchUpdateJob> CompletedJobs { get; }
         public ObservableCollection<GeolocationBatchUpdateJob> ExecutingJobs { get; }
         public ObservableCollection<GeolocationBatchUpdateJob> PendingJobs { get; }
-        public Dictionary<Guid, List<IPGeolocationUpdateRequest>> ExecutingJobItems { get; }
+        public Dictionary<Guid, List<IPGeolocationUpdateRequest>> Buffer { get; }
 
         public const int JobBatchExecutionSize = 2;
         public const int ItemBatchProcessSize = 3;
 
         public IPGeolocationBatchUpdateService()
         {
+            CompletedJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
             ExecutingJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
             PendingJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
             PendingJobs.CollectionChanged += PendingJobsOnCollectionChanged;
 
-            ExecutingJobItems = new Dictionary<Guid, List<IPGeolocationUpdateRequest>>();
+            Buffer = new Dictionary<Guid, List<IPGeolocationUpdateRequest>>();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,15 +53,36 @@ namespace Novibet.Service.IpGeolocation.Core.Services
             return backgroundJob.Id;
         }
 
-        public async Task<BackgroundJobStatusType> GetJobStatus(Guid id)
+        public BackgroundJobStatus GetJobStatus(Guid id)
         {
-            if (PendingJobs.Any(x => x.Id == id))
-                return BackgroundJobStatusType.Pending;
+            var status = new BackgroundJobStatus();
 
-            if (ExecutingJobs.Any(x => x.Id == id))
-                return BackgroundJobStatusType.Processing;
+            var job = SearchJob(id);
 
-            return BackgroundJobStatusType.Completed;
+            if (job == null)
+                return null;
+
+            status.TotalItemCount = job.RequestItemCount;
+            status.RemainingItemCount = job.RemainingItemCount;
+
+            return status;
+        }
+
+        private GeolocationBatchUpdateJob SearchJob(Guid id)
+        {
+            var pendingJob = PendingJobs.FirstOrDefault(x => x.Id == id);
+
+            if (pendingJob != null)
+                return pendingJob;
+
+            var executingJob = ExecutingJobs.FirstOrDefault(x => x.Id == id);
+
+            if (executingJob != null)
+                return executingJob;
+
+            var completedJob = CompletedJobs.FirstOrDefault(x => x.Id == id);
+
+            return completedJob;
         }
 
         private void TryQueueNewJobs()
@@ -77,7 +100,7 @@ namespace Novibet.Service.IpGeolocation.Core.Services
             jobs.ForEach(x =>
             {
                 ExecutingJobs.Add(x);
-                ExecutingJobItems.Add(x.Id, x.Request as List<IPGeolocationUpdateRequest>);
+                Buffer.Add(x.Id, x.Request as List<IPGeolocationUpdateRequest>);
                 PendingJobs.Remove(x);
             });
         }
@@ -87,12 +110,12 @@ namespace Novibet.Service.IpGeolocation.Core.Services
             if (!ExecutingJobs.Any())
                 return;
 
-            foreach (var jobItem in ExecutingJobItems)
+            foreach (var bufferItem in Buffer)
             {
-                var itemsToProcess = jobItem.Value.Take(ItemBatchProcessSize).ToList();
+                var itemsToProcess = bufferItem.Value.Take(ItemBatchProcessSize).ToList();
 
                 // Handle selected items
-                var executingJob = ExecutingJobs.FirstOrDefault(x => x.Id == jobItem.Key);
+                var executingJob = ExecutingJobs.FirstOrDefault(x => x.Id == bufferItem.Key);
 
                 if(executingJob == null)
                     continue;
@@ -100,16 +123,19 @@ namespace Novibet.Service.IpGeolocation.Core.Services
                 executingJob.Processor.Invoke(itemsToProcess);
 
                 // remove selected items from the buffer for specific job id
-                itemsToProcess.ForEach(x => ExecutingJobItems.FirstOrDefault(i => i.Key == jobItem.Key).Value.Remove(x));
+                itemsToProcess.ForEach(x => Buffer.FirstOrDefault(i => i.Key == bufferItem.Key).Value.Remove(x));
 
-                if (!jobItem.Value.Any())
+                executingJob.RemainingItemCount -= itemsToProcess.Count;
+
+                if (!bufferItem.Value.Any())
                     FinishExecutingJob(executingJob);
             }
         }
 
         private void FinishExecutingJob(GeolocationBatchUpdateJob job)
         {
-            ExecutingJobItems.Remove(job.Id);
+            CompletedJobs.Add(job);
+            Buffer.Remove(job.Id);
             ExecutingJobs.Remove(job);
         }
 

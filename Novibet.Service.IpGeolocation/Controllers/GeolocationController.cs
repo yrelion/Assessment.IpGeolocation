@@ -50,24 +50,17 @@ namespace Novibet.Service.IpGeolocation.Controllers
         /// </summary>
         /// <param name="jobId">The batch <see cref="Guid"/> to search</param>
         [HttpGet("batch/{jobId}")]
-        [ProducesResponseType(StatusCodes.Status102Processing)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BackgroundJobStatus),StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetBatchStatus([FromRoute] Guid jobId)
         {
             var query = new GetIpGeolocationBatchUpdateStatusQuery(jobId);
             var result = await _mediator.Send(query);
 
-            switch (result)
-            {
-                case BackgroundJobStatusType.Pending:
-                    return new StatusCodeResult(StatusCodes.Status102Processing);
-                case BackgroundJobStatusType.Processing:
-                    return new StatusCodeResult(StatusCodes.Status102Processing);
-                case BackgroundJobStatusType.Completed:
-                    return Ok();
-            }
+            if (result == null)
+                return NotFound();
 
-            return Ok();
+            return Ok(result);
         }
 
         /// <summary>

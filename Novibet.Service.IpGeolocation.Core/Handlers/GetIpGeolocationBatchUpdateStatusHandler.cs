@@ -5,15 +5,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Internal;
 using Novibet.Service.IpGeolocation.Common.Models;
-using Novibet.Service.IpGeolocation.Core.Requests;
 using Novibet.Service.IpGeolocation.Core.Requests.Queries;
 using Novibet.Service.IpGeolocation.Core.Services;
 
 namespace Novibet.Service.IpGeolocation.Core.Handlers
 {
-    public class GetIpGeolocationBatchUpdateStatusHandler : IRequestHandler<GetIpGeolocationBatchUpdateStatusQuery, BackgroundJobStatusType>
+    public class GetIpGeolocationBatchUpdateStatusHandler : IRequestHandler<GetIpGeolocationBatchUpdateStatusQuery, BackgroundJobStatus>
     {
         private readonly IPGeolocationBatchUpdateService _batchUpdateService;
 
@@ -22,9 +20,9 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
             _batchUpdateService = batchUpdateService;
         }
 
-        public async Task<BackgroundJobStatusType> Handle(GetIpGeolocationBatchUpdateStatusQuery request, CancellationToken cancellationToken)
+        public async Task<BackgroundJobStatus> Handle(GetIpGeolocationBatchUpdateStatusQuery request, CancellationToken cancellationToken)
         {
-            var result = await _batchUpdateService.GetJobStatus(request.JobId);
+            var result = _batchUpdateService.GetJobStatus(request.JobId);
             return result;
         }
     }

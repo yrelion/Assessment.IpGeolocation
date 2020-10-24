@@ -4,7 +4,7 @@ using Novibet.Service.IpGeolocation.Common.Models;
 
 namespace Novibet.Service.IpGeolocation.Core.Requests.Queries
 {
-    public class GetIpGeolocationBatchUpdateStatusQuery : IRequest<BackgroundJobStatusType>
+    public class GetIpGeolocationBatchUpdateStatusQuery : IRequest<BackgroundJobStatus>
     {
         public readonly Guid JobId;
 
