@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Novibet.Service.IpGeolocation.Attributes;
 using Novibet.Service.IpGeolocation.Common.Models;
 using Novibet.Service.IpGeolocation.Core.Requests;
-using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 
 namespace Novibet.Service.IpGeolocation.Controllers
 {
     [Route("v1/[controller]")]
     [ApiController, HandleExceptions]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class GeolocationController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,12 +23,20 @@ namespace Novibet.Service.IpGeolocation.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Get an IP's geolocation information
+        /// </summary>
+        /// <param name="ip">The IP address to query information for</param>
+        /// <returns>An <see cref="IPGeolocation"/> information object</returns>
         [HttpGet("{ip}")]
-        [ProducesResponseType(typeof(IPLookupDetails), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IPGeolocation), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetails([FromRoute] string ip)
         {
             var query = new GetIpDetailsQuery(ip);
             var result = await _mediator.Send(query);
+
+            if(result == null)
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
 
             return Ok(result);
         }

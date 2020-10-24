@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Novibet.Service.IpGeolocation.Configuration;
+using Novibet.Service.IpGeolocation.Data;
 
 namespace Novibet.Service.IpGeolocation
 {
@@ -28,7 +30,14 @@ namespace Novibet.Service.IpGeolocation
         {
             services.AddControllers();
             services.AddCustomServices(Configuration);
+            services.AddMemoryCache();
             services.ConfigureSwagger();
+
+            services.AddEntityFrameworkSqlServer();
+            services.AddDbContext<GeolocationContext>((provider, options) =>
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

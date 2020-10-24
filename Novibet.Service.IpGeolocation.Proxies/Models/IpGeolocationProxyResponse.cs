@@ -6,7 +6,7 @@ using Novibet.Service.IpGeolocation.Common.Interfaces;
 
 namespace Novibet.Service.IpGeolocation.Proxies.Models
 {
-    public class IpDetailsResponse : IPDetails
+    public class IpGeolocationProxyResponse : IPDetails
     {
         [JsonProperty("city")]
         public string City { get; set; }

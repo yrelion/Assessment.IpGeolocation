@@ -15,7 +15,7 @@ namespace Novibet.Service.IpGeolocation.Proxies.Services
 
         public IPDetails GetDetails(string ip)
         {
-            var result = RequestData<IpDetailsResponse>($"{ip}", HttpMethod.Get);
+            var result = RequestData<IpGeolocationProxyResponse>($"{ip}", HttpMethod.Get);
             return result;
         }
     }

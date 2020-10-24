@@ -24,6 +24,9 @@ namespace Novibet.Service.IpGeolocation.Configuration
             services.AddSingleton(x => x.GetService<IOptions<ProxySettings>>()?.Value);
             services.AddSingleton(x => x.GetService<IOptions<IpStackServiceProxySettings>>()?.Value);
 
+            // Services
+            services.AddCoreServices();
+
             // Service Proxies
             services.AddRestProxies();
 

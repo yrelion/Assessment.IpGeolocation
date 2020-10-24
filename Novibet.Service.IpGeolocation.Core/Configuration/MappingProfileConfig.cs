@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
 using Novibet.Service.IpGeolocation.Common.Models;
+using Novibet.Service.IpGeolocation.Data.Models;
 using Novibet.Service.IpGeolocation.Proxies.Models;
+using IPGeolocation = Novibet.Service.IpGeolocation.Common.Models.IPGeolocation;
 
 namespace Novibet.Service.IpGeolocation.Core.Configuration
 {
@@ -11,7 +13,8 @@ namespace Novibet.Service.IpGeolocation.Core.Configuration
     {
         public MappingProfileConfig()
         {
-            CreateMap<IpDetailsResponse, IPLookupDetails>().ReverseMap();
+            CreateMap<IPGeolocation, IpGeolocationProxyResponse>().ReverseMap();
+            CreateMap<IPGeolocationDto, IPGeolocation>().ReverseMap();
         }
     }
 }
