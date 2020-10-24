@@ -40,5 +40,30 @@ namespace Novibet.Service.IpGeolocation.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Get a batch job status
+        /// </summary>
+        /// <param name="batchId">The batch <see cref="Guid"/> to search</param>
+        [HttpGet("batch/{batchId}")]
+        [ProducesResponseType(StatusCodes.Status102Processing)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBatchStatus([FromRoute] Guid batchId)
+        {
+            return Ok();
+        }
+
+        /// <summary>
+        /// Create a batch job to update IP details
+        /// </summary>
+        /// <param name="request">The <see cref="IPGeolocationUpdateRequest"/>s</param>
+        /// <returns>The batch job <see cref="Guid"/></returns>
+        [HttpPost("batch")]
+        [ProducesResponseType(typeof(Guid),StatusCodes.Status202Accepted)]
+        public async Task<IActionResult> UpdateDetails([FromBody] IEnumerable<IPGeolocationUpdateRequest> request)
+        {
+            var result = Guid.NewGuid(); //TODO: Implement
+            return AcceptedAtAction(nameof(GetBatchStatus), new { batchId = result }, result);
+        }
     }
 }
