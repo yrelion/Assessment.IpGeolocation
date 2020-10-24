@@ -34,7 +34,7 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
 
         public async Task<IPGeolocation> Handle(GetIpDetailsQuery request, CancellationToken cancellationToken)
         {
-            var result = _cacheProvider.GetOrCreate(request.IP, () => RetrieveDetails(request));
+            var result = await _cacheProvider.GetOrCreateAsync(request.IP, RetrieveDetails(request));
             return result;
         }
 
@@ -44,23 +44,23 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
         /// </summary>
         /// <param name="request">The <see cref="GetIpDetailsQuery"/></param>
         /// <returns>The <see cref="IPGeolocation"/> information</returns>
-        protected IPGeolocation RetrieveDetails(GetIpDetailsQuery request)
+        protected async Task<IPGeolocation> RetrieveDetails(GetIpDetailsQuery request)
         {
             // Retrieve
-            var dbGeolocation = _geolocationContext.Geolocations.AsNoTracking()
-                .FirstOrDefault(x => x.Id == request.IP);
+            var dbGeolocation = await _geolocationContext.Geolocations.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.IP);
 
             if (dbGeolocation != null)
                 return _mapper.Map<IPGeolocation>(dbGeolocation);
 
             // Request
-            var geolocation = GetGeolocation(request.IP);
+            var geolocation = await GetGeolocation(request.IP);
 
             if (geolocation == null)
                 return null;
 
             // Store
-            var geolocationSaved = SaveGeolocation(geolocation, request.IP);
+            var geolocationSaved = await SaveGeolocation(geolocation, request.IP);
 
             if (!geolocationSaved)
                 return null;
@@ -73,9 +73,9 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
         /// </summary>
         /// <param name="ip">The IP address to request information for</param>
         /// <returns>The <see cref="IPGeolocation"/> information</returns>
-        protected IPGeolocation GetGeolocation(string ip)
+        protected async Task<IPGeolocation> GetGeolocation(string ip)
         {
-            var response = _ipInfoProvider.GetDetails(ip);
+            var response = await Task.Run(() => _ipInfoProvider.GetDetails(ip)); // TODO: Review interface constraint
             return _mapper.Map<IPGeolocation>(response);
         }
 
@@ -85,13 +85,13 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
         /// <param name="geolocation">The <see cref="IPGeolocation"/> object to store</param>
         /// <param name="id">The IP address as the database entry identifier</param>
         /// <returns>The database operation fulfillment</returns>
-        protected bool SaveGeolocation(IPGeolocation geolocation, string id)
+        protected async Task<bool> SaveGeolocation(IPGeolocation geolocation, string id)
         {
             var geolocationDto = _mapper.Map<IPGeolocationDto>(geolocation);
             geolocationDto.Id = id;
 
             _geolocationContext.Geolocations.Add(geolocationDto);
-            var rowsAffected = _geolocationContext.SaveChanges();
+            var rowsAffected = await _geolocationContext.SaveChangesAsync();
 
             return rowsAffected == 1;
         }

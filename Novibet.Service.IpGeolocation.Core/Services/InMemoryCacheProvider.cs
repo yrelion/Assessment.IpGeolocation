@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 
@@ -25,9 +26,9 @@ namespace Novibet.Service.IpGeolocation.Core.Services
         /// <param name="key">The key to associate the <see cref="ICacheEntry"/> with</param>
         /// <param name="resolver">The resolver to invoke to produce the <see cref="ICacheEntry"/></param>
         /// <returns>The <see cref="ICacheEntry"/></returns>
-        public TResponse GetOrCreate<TResponse>(object key, Func<TResponse> resolver)
+        public async Task<TResponse> GetOrCreateAsync<TResponse>(object key, Task<TResponse> resolver)
         {
-            return _cache.GetOrCreate(key, factory =>
+            return await _cache.GetOrCreateAsync(key, async factory =>
             {
                 //TODO: Move elsewhere
                 factory.SetOptions(new MemoryCacheEntryOptions
@@ -35,7 +36,7 @@ namespace Novibet.Service.IpGeolocation.Core.Services
                     AbsoluteExpiration = new DateTimeOffset(DateTime.UtcNow.AddMinutes(1))
                 });
 
-                return resolver.Invoke();
+                return await resolver;
             });
         }
     }

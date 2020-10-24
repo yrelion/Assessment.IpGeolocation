@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Novibet.Service.IpGeolocation.Common.Interfaces
@@ -14,6 +15,6 @@ namespace Novibet.Service.IpGeolocation.Common.Interfaces
         /// <param name="key">The key to associate the <see cref="ICacheEntry"/> with</param>
         /// <param name="resolver">The resolver to invoke to produce the <see cref="ICacheEntry"/></param>
         /// <returns>The <see cref="ICacheEntry"/></returns>
-        TResponse GetOrCreate<TResponse>(object key, Func<TResponse> resolver);
+        Task<TResponse> GetOrCreateAsync<TResponse>(object key, Task<TResponse> resolver);
     }
 }
