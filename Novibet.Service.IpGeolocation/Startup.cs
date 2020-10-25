@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -33,6 +35,12 @@ namespace Novibet.Service.IpGeolocation
             services.AddMemoryCache();
             services.ConfigureSwagger();
 
+            services.AddMvc()
+            .AddFluentValidation(options =>
+                {
+                    options.RegisterValidatorsFromAssemblyContaining<Startup>();
+                });
+            
             services.AddEntityFrameworkSqlServer();
             services.AddDbContext<GeolocationContext>((provider, options) =>
                 {

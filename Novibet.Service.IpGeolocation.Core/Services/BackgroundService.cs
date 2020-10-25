@@ -30,7 +30,7 @@ namespace Novibet.Service.IpGeolocation.Core.Services
             {
                 _stoppingTokenSource.Cancel();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignore
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Novibet.Service.IpGeolocation.Common.Models
@@ -12,13 +13,20 @@ namespace Novibet.Service.IpGeolocation.Common.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }
+
     public class IPGeolocationUpdateRequest
     {
+        [Required]
         public string Ip { get; set; }
+        [Required]
         public string City { get; set; }
+        [Required]
         public string Country { get; set; }
+        [Required]
         public string Continent { get; set; }
+        [Required]
         public double Latitude { get; set; }
+        [Required]
         public double Longitude { get; set; }
     }
 }

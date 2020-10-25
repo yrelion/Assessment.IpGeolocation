@@ -14,7 +14,7 @@ using Novibet.Service.IpGeolocation.Core.Requests.Queries;
 namespace Novibet.Service.IpGeolocation.Controllers
 {
     [Route("v1/[controller]")]
-    [ApiController, HandleExceptions]
+    [ApiController, HandleExceptions, ValidateModelState]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class GeolocationController : ControllerBase
     {
