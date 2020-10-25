@@ -9,9 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Novibet.Service.IpGeolocati
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Novibet.Service.IpGeolocation.Common", "Novibet.Service.IpGeolocation.Common\Novibet.Service.IpGeolocation.Common.csproj", "{B204F6DD-47CC-42B8-ACF0-5388147601B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Novibet.Service.IpGeolocation.Core", "Novibet.Service.IpGeolocation.Core\Novibet.Service.IpGeolocation.Core.csproj", "{1F07C88C-BAFA-4C02-B3DF-E1E63838DF50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Novibet.Service.IpGeolocation.Core", "Novibet.Service.IpGeolocation.Core\Novibet.Service.IpGeolocation.Core.csproj", "{1F07C88C-BAFA-4C02-B3DF-E1E63838DF50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Novibet.Service.IpGeolocation.Data", "Novibet.Service.IpGeolocation.Data\Novibet.Service.IpGeolocation.Data.csproj", "{E39A8B1E-4B9D-43E3-B10D-C98058B22713}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Novibet.Service.IpGeolocation.Data", "Novibet.Service.IpGeolocation.Data\Novibet.Service.IpGeolocation.Data.csproj", "{E39A8B1E-4B9D-43E3-B10D-C98058B22713}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75C5D15D-0A14-410B-A577-52A131FFC402}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
