@@ -108,17 +108,19 @@ namespace Novibet.Service.IpGeolocation.Core.Services
 
         /// <summary>
         /// Encapsulates the given <paramref name="request"/> within a <see cref="GeolocationBatchUpdateJob"/>
-        /// along with the <see cref="IPGeolocationProcessor"/> delegate to eventually invoke when processing begins
+        /// along with the <see cref="IPGeolocationProcessor"/> delegate to eventually invoke when
+        /// processing begins
         /// </summary>
         /// <param name="request">The <see cref="List{T}"/> of <see cref="IPGeolocationUpdateRequest"/></param>
         /// <param name="processor">The <see cref="IPGeolocationProcessor"/> delegate to invoke at processing time</param>
         /// <returns>
-        /// The assigned <see cref="Guid"/> associated with the newly created <see cref="GeolocationBatchUpdateJob"/>
+        /// The assigned <see cref="Guid"/> associated with the newly created
+        /// <see cref="GeolocationBatchUpdateJob"/>
         /// </returns>
         public Guid AddJob(List<IPGeolocationUpdateRequest> request, IPGeolocationProcessor processor)
         {
             var backgroundJob = new GeolocationBatchUpdateJob(request, processor);
-            PendingJobs.Add(new GeolocationBatchUpdateJob(request, processor));
+            PendingJobs.Add(backgroundJob);
 
             return backgroundJob.Id;
         }
@@ -195,7 +197,8 @@ namespace Novibet.Service.IpGeolocation.Core.Services
                 job.Processor.Invoke(itemsToProcess);
 
                 // Remove processed job items from the buffer for the current job
-                itemsToProcess.ForEach(x => Buffer.FirstOrDefault(i => i.Key == bufferItem.Key).Value.Remove(x));
+                itemsToProcess.ForEach(x => Buffer.FirstOrDefault(i => i.Key == bufferItem.Key)
+                    .Value.Remove(x));
 
                 job.RemainingItemCount -= itemsToProcess.Count;
 
