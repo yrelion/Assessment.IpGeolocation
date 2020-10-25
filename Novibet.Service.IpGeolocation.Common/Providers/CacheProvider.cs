@@ -40,5 +40,12 @@ namespace Novibet.Service.IpGeolocation.Common.Providers
                 return await resolver.Invoke();
             });
         }
+
+        /// <summary>
+        /// Removes the <see cref="ICacheEntry"/> matching the provided key
+        /// </summary>
+        /// <param name="key">The key to remove</param>
+        public void Remove(object key)
+            => _cache.Remove(key);
     }
 }

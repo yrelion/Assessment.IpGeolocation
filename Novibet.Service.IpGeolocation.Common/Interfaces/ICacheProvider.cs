@@ -16,5 +16,11 @@ namespace Novibet.Service.IpGeolocation.Common.Interfaces
         /// <param name="resolver">The resolver to invoke to produce the <see cref="ICacheEntry"/></param>
         /// <returns>The <see cref="ICacheEntry"/></returns>
         Task<TResponse> GetOrCreateAsync<TResponse>(object key, Func<Task<TResponse>> resolver);
+
+        /// <summary>
+        /// Removes the <see cref="ICacheEntry"/> matching the provided key
+        /// </summary>
+        /// <param name="key">The key to remove</param>
+        void Remove(object key);
     }
 }
