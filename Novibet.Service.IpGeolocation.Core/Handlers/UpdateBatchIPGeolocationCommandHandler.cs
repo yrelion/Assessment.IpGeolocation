@@ -9,7 +9,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Common.Models;
-using Novibet.Service.IpGeolocation.Core.Models;
 using Novibet.Service.IpGeolocation.Core.Requests.Commands;
 using Novibet.Service.IpGeolocation.Core.Services;
 using Novibet.Service.IpGeolocation.Data;
@@ -17,7 +16,7 @@ using Novibet.Service.IpGeolocation.Data.Models;
 
 namespace Novibet.Service.IpGeolocation.Core.Handlers
 {
-    class UpdateBatchIPGeolocationCommandHandler : IRequestHandler<UpdateBatchIPGeolocationCommand, Guid>
+    public class UpdateBatchIPGeolocationCommandHandler : IRequestHandler<UpdateBatchIPGeolocationCommand, Guid>
     {
         private readonly IMapper _mapper;
         private readonly ICacheProvider _cacheProvider;
@@ -46,32 +45,52 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
             return generatedId;
         }
 
-        private async Task<IPGeolocation> UpdateGeolocation(IPGeolocationUpdateRequest updateRequest)
+        /// <summary>
+        /// Updates the <see cref="IPGeolocation"/> database entry by the given request
+        /// </summary>
+        /// <param name="request">The request to update the <see cref="IPGeolocation"/> entry with</param>
+        /// <returns>The updated <see cref="IPGeolocation"/></returns>
+        private async Task<IPGeolocation> UpdateGeolocation(IPGeolocationUpdateRequest request)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
+                /*
+                 * Workaround for hosted service not aware of injected scoped services due to
+                 * their disposal when the request lifecycle ends
+                 */
                 var context = scope.ServiceProvider.GetRequiredService<GeolocationContext>();
 
-                var newGeolocation = _mapper.Map<IPGeolocationDto>(updateRequest);
-                var entity = await context.Geolocations.FindAsync(updateRequest.Ip);
+                var entity = await context.Geolocations.FindAsync(request.Ip);
 
                 if (entity == null)
                     return null;
 
-                entity.City = updateRequest.City;
-                entity.Country = updateRequest.Country;
-                entity.Continent = updateRequest.Continent;
-                entity.Latitude = updateRequest.Latitude;
-                entity.Longitude = updateRequest.Longitude;
+                entity = Decorate(entity, request);
 
                 context.Geolocations.Update(entity);
-
-                //context.Entry(entity).CurrentValues.SetValues(newGeolocation);
                 await context.SaveChangesAsync();
 
-                var result = _mapper.Map<IPGeolocation>(newGeolocation);
+                var updatedGeolocation = await context.Geolocations.FindAsync(entity.Id);
+                var result = _mapper.Map<IPGeolocation>(updatedGeolocation);
+
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Decorates the DTO by mapping relevant properties from the <see cref="IPGeolocationUpdateRequest"/>
+        /// </summary>
+        /// <param name="dto">The DTO to decorate</param>
+        /// <param name="request">The <see cref="IPGeolocationUpdateRequest"/> to decorate the DTO with</param>
+        private IPGeolocationDto Decorate(IPGeolocationDto dto, IPGeolocationUpdateRequest request)
+        {
+            dto.City = request.City;
+            dto.Country = request.Country;
+            dto.Continent = request.Continent;
+            dto.Latitude = request.Latitude;
+            dto.Longitude = request.Longitude;
+
+            return dto;
         }
     }
 }

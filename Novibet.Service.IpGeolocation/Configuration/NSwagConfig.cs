@@ -20,14 +20,6 @@ namespace Novibet.Service.IpGeolocation.Configuration
                 config.Version = "v1";
                 config.DocumentName = "Novibet.IpGeolocation.Api";
 
-                config.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.ApiKey,
-                    Name = "Authorization",
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\""
-                });
-
                 config.GenerateEnumMappingDescription = true;
                 config.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
             }

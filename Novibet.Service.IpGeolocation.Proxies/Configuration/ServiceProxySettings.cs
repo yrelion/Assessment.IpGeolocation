@@ -11,7 +11,7 @@ namespace Novibet.Service.IpGeolocation.Proxies.Configuration
         public IpStackServiceProxySettings IpStack { get; set; }
     }
 
-    public class ServiceProxySettings : IServiceProxySettings
+    public abstract class ServiceProxySettings : IServiceProxySettings
     {
         public string ServiceId { get; set; }
         public string ServiceName { get; set; }

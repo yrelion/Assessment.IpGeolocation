@@ -8,10 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Novibet.Service.IpGeolocation.Attributes;
 using Novibet.Service.IpGeolocation.Common.Models;
-using Novibet.Service.IpGeolocation.Core.Requests;
 using Novibet.Service.IpGeolocation.Core.Requests.Commands;
 using Novibet.Service.IpGeolocation.Core.Requests.Queries;
-using Novibet.Service.IpGeolocation.Core.Services;
 
 namespace Novibet.Service.IpGeolocation.Controllers
 {
