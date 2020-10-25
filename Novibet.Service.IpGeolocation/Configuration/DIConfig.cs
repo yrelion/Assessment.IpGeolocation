@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Novibet.Service.IpGeolocation.Common.Models;
 using Novibet.Service.IpGeolocation.Core.Configuration;
 using Novibet.Service.IpGeolocation.Core.Handlers;
+using Novibet.Service.IpGeolocation.Data.Configuration;
 using Novibet.Service.IpGeolocation.Proxies.Configuration;
 
 namespace Novibet.Service.IpGeolocation.Configuration
@@ -38,6 +39,9 @@ namespace Novibet.Service.IpGeolocation.Configuration
 
             // Service Proxies
             services.AddRestProxies();
+
+            // Databases
+            services.AddDatabases(configuration);
 
             // Handlers
             services.AddMediatR(typeof(BaseRequestHandler).GetTypeInfo().Assembly);

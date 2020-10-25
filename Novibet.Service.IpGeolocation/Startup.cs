@@ -35,17 +35,10 @@ namespace Novibet.Service.IpGeolocation
             services.AddMemoryCache();
             services.ConfigureSwagger();
 
-            services.AddMvc()
-            .AddFluentValidation(options =>
-                {
-                    options.RegisterValidatorsFromAssemblyContaining<Startup>();
-                });
-            
-            services.AddEntityFrameworkSqlServer();
-            services.AddDbContext<GeolocationContext>((provider, options) =>
-                {
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                });
+            services.AddMvc().AddFluentValidation(options =>
+            {
+                options.RegisterValidatorsFromAssemblyContaining<Startup>();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
