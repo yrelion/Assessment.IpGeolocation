@@ -15,6 +15,6 @@ namespace Novibet.Service.IpGeolocation.Common.Interfaces
         /// <param name="key">The key to associate the <see cref="ICacheEntry"/> with</param>
         /// <param name="resolver">The resolver to invoke to produce the <see cref="ICacheEntry"/></param>
         /// <returns>The <see cref="ICacheEntry"/></returns>
-        Task<TResponse> GetOrCreateAsync<TResponse>(object key, Task<TResponse> resolver);
+        Task<TResponse> GetOrCreateAsync<TResponse>(object key, Func<Task<TResponse>> resolver);
     }
 }

@@ -38,7 +38,7 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
             {
                 requests.ToList().ForEach(async x =>
                 {
-                    await _cacheProvider.GetOrCreateAsync(x.Ip, UpdateGeolocation(x));
+                    await _cacheProvider.GetOrCreateAsync(x.Ip, () => UpdateGeolocation(x));
                 });
             });
 

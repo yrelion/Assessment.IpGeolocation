@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
-using Novibet.Service.IpGeolocation.Proxies.Configuration;
+using Novibet.Service.IpGeolocation.Common.Models;
 using Novibet.Service.IpGeolocation.Proxies.Interfaces;
 using Novibet.Service.IpGeolocation.Proxies.Models;
 

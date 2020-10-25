@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 
-namespace Novibet.Service.IpGeolocation.Proxies.Configuration
+namespace Novibet.Service.IpGeolocation.Common.Models
 {
     public class ProxySettings
     {

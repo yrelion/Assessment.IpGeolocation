@@ -34,7 +34,7 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
 
         public async Task<IPGeolocation> Handle(GetIpDetailsQuery request, CancellationToken cancellationToken)
         {
-            var result = await _cacheProvider.GetOrCreateAsync(request.IP, RetrieveDetails(request));
+            var result = await _cacheProvider.GetOrCreateAsync(request.IP, () => RetrieveDetails(request));
             return result;
         }
 

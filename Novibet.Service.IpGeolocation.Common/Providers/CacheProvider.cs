@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
+using Novibet.Service.IpGeolocation.Common.Models;
 
-namespace Novibet.Service.IpGeolocation.Core.Services
+namespace Novibet.Service.IpGeolocation.Common.Providers
 {
     /// <summary>
     /// A wrapper around <see cref="IMemoryCache"/> for generic entity retrieval
@@ -13,10 +12,12 @@ namespace Novibet.Service.IpGeolocation.Core.Services
     public class CacheProvider : ICacheProvider
     {
         private readonly IMemoryCache _cache;
+        private readonly IInMemoryCacheSettings _settings;
 
-        public CacheProvider(IMemoryCache cache)
+        public CacheProvider(IMemoryCache cache, InMemoryCacheSettings settings)
         {
             _cache = cache;
+            _settings = settings;
         }
 
         /// <summary>
@@ -26,17 +27,17 @@ namespace Novibet.Service.IpGeolocation.Core.Services
         /// <param name="key">The key to associate the <see cref="ICacheEntry"/> with</param>
         /// <param name="resolver">The resolver to invoke to produce the <see cref="ICacheEntry"/></param>
         /// <returns>The <see cref="ICacheEntry"/></returns>
-        public async Task<TResponse> GetOrCreateAsync<TResponse>(object key, Task<TResponse> resolver)
+        public async Task<TResponse> GetOrCreateAsync<TResponse>(object key, Func<Task<TResponse>> resolver)
         {
             return await _cache.GetOrCreateAsync(key, async factory =>
             {
-                //TODO: Move elsewhere
                 factory.SetOptions(new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpiration = new DateTimeOffset(DateTime.UtcNow.AddMinutes(1))
+                    AbsoluteExpiration = new DateTimeOffset(DateTime.UtcNow
+                        .AddMinutes(_settings.AbsoluteExpirationMinutes))
                 });
 
-                return await resolver;
+                return await resolver.Invoke();
             });
         }
     }

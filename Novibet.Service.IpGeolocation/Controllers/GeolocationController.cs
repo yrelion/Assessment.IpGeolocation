@@ -44,24 +44,6 @@ namespace Novibet.Service.IpGeolocation.Controllers
         }
 
         /// <summary>
-        /// Get a batch job status
-        /// </summary>
-        /// <param name="jobId">The batch <see cref="Guid"/> to search</param>
-        [HttpGet("batch/{jobId}")]
-        [ProducesResponseType(typeof(BackgroundJobStatus),StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBatchStatus([FromRoute] Guid jobId)
-        {
-            var query = new GetIpGeolocationBatchUpdateStatusQuery(jobId);
-            var result = await _mediator.Send(query);
-
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
-        }
-
-        /// <summary>
         /// Create a batch job to update IP details
         /// </summary>
         /// <param name="request">The <see cref="IPGeolocationUpdateRequest"/>s</param>
@@ -74,6 +56,24 @@ namespace Novibet.Service.IpGeolocation.Controllers
             var result = await _mediator.Send(command);
 
             return AcceptedAtAction(nameof(GetBatchStatus), new { jobId = result }, result);
+        }
+
+        /// <summary>
+        /// Get a batch job status
+        /// </summary>
+        /// <param name="jobId">The batch <see cref="Guid"/> to search</param>
+        [HttpGet("batch/{jobId}")]
+        [ProducesResponseType(typeof(BackgroundJobStatus), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetBatchStatus([FromRoute] Guid jobId)
+        {
+            var query = new GetIpGeolocationBatchUpdateStatusQuery(jobId);
+            var result = await _mediator.Send(query);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }

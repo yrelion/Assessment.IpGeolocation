@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 
-namespace Novibet.Service.IpGeolocation.Core.Models
+namespace Novibet.Service.IpGeolocation.Common.Models
 {
     public class WorkerSettings
     {
