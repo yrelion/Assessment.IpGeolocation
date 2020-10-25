@@ -16,133 +16,244 @@ namespace Novibet.Service.IpGeolocation.Core.Services
 
     public class IPGeolocationBatchUpdateService : BackgroundService
     {
-        public ObservableCollection<GeolocationBatchUpdateJob> CompletedJobs { get; }
-        public ObservableCollection<GeolocationBatchUpdateJob> ExecutingJobs { get; }
-        public ObservableCollection<GeolocationBatchUpdateJob> PendingJobs { get; }
-        public Dictionary<Guid, List<IPGeolocationUpdateRequest>> Buffer { get; }
+        /// <summary>
+        /// The worker configuration options
+        /// </summary>
+        private readonly IPGeolocationHostedWorkerSettings _settings;
 
-        public const int JobBatchExecutionSize = 2;
-        public const int ItemBatchProcessSize = 3;
+        /// <summary>
+        /// The completed <see cref="GeolocationBatchUpdateJob"/> registry
+        /// </summary>
+        private ObservableCollection<GeolocationBatchUpdateJob> CompletedJobs { get; }
 
-        public IPGeolocationBatchUpdateService()
+        /// <summary>
+        /// The read-only collection of completed <see cref="GeolocationBatchUpdateJob"/>s
+        /// reflecting <see cref="CompletedJobs"/>
+        /// </summary>
+        private ReadOnlyCollection<GeolocationBatchUpdateJob> CompletedJobsReadOnly { get; }
+
+        /// <summary>
+        /// The executing <see cref="GeolocationBatchUpdateJob"/> collection where
+        /// jobs are placed while their execution is initiated
+        /// </summary>
+        private ObservableCollection<GeolocationBatchUpdateJob> ExecutingJobs { get; }
+
+        /// <summary>
+        /// The pending <see cref="GeolocationBatchUpdateJob"/> collection where
+        /// jobs are placed while their executing is pending
+        /// </summary>
+        private ObservableCollection<GeolocationBatchUpdateJob> PendingJobs { get; }
+
+        /// <summary>
+        /// The <see cref="IPGeolocationUpdateRequest"/> buffer per
+        /// each executing <see cref="GeolocationBatchUpdateJob"/>'s <see cref="Guid"/>
+        /// </summary>
+        /// <remarks>
+        /// Buffered items are subject to retrieval based on the <see cref="JobItemBatchSize"/>
+        /// and are removed upon being processed
+        /// </remarks>
+        private Dictionary<Guid, List<IPGeolocationUpdateRequest>> Buffer { get; }
+
+        /// <summary>
+        /// The <see cref="GeolocationBatchUpdateJob"/> size
+        /// </summary>
+        public int JobBatchSize => _settings.JobBatchSize;
+
+        /// <summary>
+        /// The <see cref="IPGeolocationUpdateRequest"/> size to consume
+        /// from the <see cref="Buffer"/>
+        /// </summary>
+        public int JobItemBatchSize => _settings.JobItemBatchSize;
+
+        /// <summary>
+        /// The worker execution interval in milliseconds
+        /// </summary>
+        /// <remarks>
+        /// Zero value interval will block the main thread and should therefore be avoided
+        /// </remarks>
+        public int Interval => _settings.Interval == 0 ? 1 : _settings.Interval;
+
+        /// <summary>
+        /// The available positions for the processing of new <see cref="GeolocationBatchUpdateJob"/>s
+        /// </summary>
+        public int OpenJobBatchSlots => JobBatchSize - ExecutingJobs.Count;
+
+        public IPGeolocationBatchUpdateService(IPGeolocationHostedWorkerSettings settings)
         {
+            _settings = settings;
+
             CompletedJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
+            CompletedJobsReadOnly = new ReadOnlyCollection<GeolocationBatchUpdateJob>(CompletedJobs);
             ExecutingJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
+
             PendingJobs = new ObservableCollection<GeolocationBatchUpdateJob>();
             PendingJobs.CollectionChanged += PendingJobsOnCollectionChanged;
 
             Buffer = new Dictionary<Guid, List<IPGeolocationUpdateRequest>>();
         }
 
+        /// <summary>
+        /// Provides long running worker execution
+        /// </summary>
+        /// <param name="stoppingToken">The <see cref="CancellationToken"/> to stop the worker</param>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                TryQueueNewJobs();
-                TryProcessExecutingJobs();
-                await Task.Delay(5000, stoppingToken);
+                TryQueuePendingJobsToExecuting();
+                TryProcessExecutingJobItems();
+                await Task.Delay(Interval, stoppingToken);
             }
         }
 
+        /// <summary>
+        /// Encapsulates the given <paramref name="request"/> within a <see cref="GeolocationBatchUpdateJob"/>
+        /// along with the <see cref="IPGeolocationProcessor"/> delegate to eventually invoke when processing begins
+        /// </summary>
+        /// <param name="request">The <see cref="List{T}"/> of <see cref="IPGeolocationUpdateRequest"/></param>
+        /// <param name="processor">The <see cref="IPGeolocationProcessor"/> delegate to invoke at processing time</param>
+        /// <returns>
+        /// The assigned <see cref="Guid"/> associated with the newly created <see cref="GeolocationBatchUpdateJob"/>
+        /// </returns>
         public Guid AddJob(List<IPGeolocationUpdateRequest> request, IPGeolocationProcessor processor)
         {
             var backgroundJob = new GeolocationBatchUpdateJob(request, processor);
-
-            PendingJobs.Add(backgroundJob);
+            PendingJobs.Add(new GeolocationBatchUpdateJob(request, processor));
 
             return backgroundJob.Id;
         }
 
+        /// <summary>
+        /// Retrieves the <see cref="BackgroundJobStatus"/> of a <see cref="GeolocationBatchUpdateJob"/>
+        /// by Id. Returns null when job not found.
+        /// </summary>
+        /// <param name="id">The <see cref="GeolocationBatchUpdateJob"/> identifier</param>
+        /// <returns>The <see cref="BackgroundJobStatus"/> or null if not found</returns>
         public BackgroundJobStatus GetJobStatus(Guid id)
-        {
-            var status = new BackgroundJobStatus();
-
+        { 
             var job = SearchJob(id);
 
             if (job == null)
                 return null;
 
-            status.TotalItemCount = job.RequestItemCount;
-            status.RemainingItemCount = job.RemainingItemCount;
-
-            return status;
+            return new BackgroundJobStatus
+            {
+                TotalItemCount = job.RequestItemCount,
+                RemainingItemCount = job.RemainingItemCount
+            };
         }
 
+        /// <summary>
+        /// Searches for a <see cref="GeolocationBatchUpdateJob"/> by its id in every collection.
+        /// Returns null when not found.
+        /// </summary>
+        /// <param name="id">The <see cref="GeolocationBatchUpdateJob"/> identifier</param>
+        /// <returns>The <see cref="GeolocationBatchUpdateJob"/> or null if not found</returns>
         private GeolocationBatchUpdateJob SearchJob(Guid id)
         {
-            var pendingJob = PendingJobs.FirstOrDefault(x => x.Id == id);
+            var registeredJobs = PendingJobs.Union(ExecutingJobs).Union(CompletedJobsReadOnly);
+            var job = registeredJobs.FirstOrDefault(x => x.Id == id);
 
-            if (pendingJob != null)
-                return pendingJob;
-
-            var executingJob = ExecutingJobs.FirstOrDefault(x => x.Id == id);
-
-            if (executingJob != null)
-                return executingJob;
-
-            var completedJob = CompletedJobs.FirstOrDefault(x => x.Id == id);
-
-            return completedJob;
+            return job;
         }
 
-        private void TryQueueNewJobs()
+        /// <summary>
+        /// Attempts to queue pending <see cref="GeolocationBatchUpdateJob"/>s to executing based on
+        /// the available <see cref="JobBatchSize"/>
+        /// </summary>
+        private void TryQueuePendingJobsToExecuting()
         {
-            if (ExecutingJobs.Count >= JobBatchExecutionSize)
+            if (ExecutingJobs.Count >= JobBatchSize)
                 return; // Skip queueing when full
+            
+            var jobs = PendingJobs.Take(OpenJobBatchSlots);
 
-            var availablePositions = JobBatchExecutionSize - ExecutingJobs.Count;
-
-            var jobs = PendingJobs.Take(availablePositions).ToList();
-
-            if (!jobs.Any())
-                return;
-
-            jobs.ForEach(x =>
-            {
-                ExecutingJobs.Add(x);
-                Buffer.Add(x.Id, x.Request as List<IPGeolocationUpdateRequest>);
-                PendingJobs.Remove(x);
-            });
+            MovePendingToExecuting(jobs);
         }
 
-        private void TryProcessExecutingJobs()
+        /// <summary>
+        /// Attempts to process executing <see cref="GeolocationBatchUpdateJob"/>s'
+        /// <see cref="IPGeolocationUpdateRequest"/>s based on the available <see cref="JobItemBatchSize"/>
+        /// </summary>
+        private void TryProcessExecutingJobItems()
         {
             if (!ExecutingJobs.Any())
                 return;
 
             foreach (var bufferItem in Buffer)
             {
-                var itemsToProcess = bufferItem.Value.Take(ItemBatchProcessSize).ToList();
+                // Retrieve buffered items by item batch size specification
+                var itemsToProcess = bufferItem.Value.Take(JobItemBatchSize).ToList();
 
-                // Handle selected items
-                var executingJob = ExecutingJobs.FirstOrDefault(x => x.Id == bufferItem.Key);
+                // Retrieve matching job
+                var job = ExecutingJobs.FirstOrDefault(x => x.Id == bufferItem.Key);
 
-                if(executingJob == null)
+                if (job == null)
                     continue;
 
-                executingJob.Processor.Invoke(itemsToProcess);
+                // Invoke delegate to process the series of job items
+                job.Processor.Invoke(itemsToProcess);
 
-                // remove selected items from the buffer for specific job id
+                // Remove processed job items from the buffer for the current job
                 itemsToProcess.ForEach(x => Buffer.FirstOrDefault(i => i.Key == bufferItem.Key).Value.Remove(x));
 
-                executingJob.RemainingItemCount -= itemsToProcess.Count;
+                job.RemainingItemCount -= itemsToProcess.Count;
 
                 if (!bufferItem.Value.Any())
-                    FinishExecutingJob(executingJob);
+                    MoveExecutingToCompleted(job);
             }
         }
 
-        private void FinishExecutingJob(GeolocationBatchUpdateJob job)
+        /// <summary>
+        /// Moves the provided <see cref="GeolocationBatchUpdateJob"/> from pending to executing
+        /// </summary>
+        /// <param name="job">The <see cref="GeolocationBatchUpdateJob"/> to move</param>
+        private void MovePendingToExecuting(GeolocationBatchUpdateJob job)
         {
-            CompletedJobs.Add(job);
-            Buffer.Remove(job.Id);
-            ExecutingJobs.Remove(job);
+            PendingJobs.Remove(job);
+            ExecutingJobs.Add(job);
+            Buffer.Add(job.Id, job.Request as List<IPGeolocationUpdateRequest>);
         }
 
+        /// <summary>
+        /// Moves the provided <see cref="GeolocationBatchUpdateJob"/> from executing to completed
+        /// </summary>
+        /// <param name="job">The <see cref="GeolocationBatchUpdateJob"/> to move</param>
+        private void MoveExecutingToCompleted(GeolocationBatchUpdateJob job)
+        {
+            ExecutingJobs.Remove(job);
+            CompletedJobs.Add(job);
+            Buffer.Remove(job.Id);
+        }
+
+        /// <summary>
+        /// Moves the provided <see cref="List{T}"/> of <see cref="GeolocationBatchUpdateJob"/>s
+        /// from pending to executing
+        /// </summary>
+        /// <param name="jobs">The <see cref="List{T}"/> of <see cref="GeolocationBatchUpdateJob"/>s
+        /// to move</param>
+        private void MovePendingToExecuting(IEnumerable<GeolocationBatchUpdateJob> jobs)
+            => jobs?.ToList().ForEach(MovePendingToExecuting);
+
+        /// <summary>
+        /// Moves the provided <see cref="List{T}"/> of <see cref="GeolocationBatchUpdateJob"/>s
+        /// from executing to completed
+        /// </summary>
+        /// <param name="jobs">The <see cref="List{T}"/> of <see cref="GeolocationBatchUpdateJob"/>s
+        /// to move</param>
+        private void MoveExecutingToCompleted(IEnumerable<GeolocationBatchUpdateJob> jobs)
+            => jobs?.ToList().ForEach(MoveExecutingToCompleted);
+        
+        /// <summary>
+        /// Handles actions for the <see cref="PendingJobs"/> upon the
+        /// <see cref="ObservableCollection{T}"/> modification
+        /// </summary>
+        /// <param name="sender">The event emitting object</param>
+        /// <param name="e">The event data</param>
         private void PendingJobsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
-                TryQueueNewJobs();
+                TryQueuePendingJobsToExecuting();
         }
     }
 }

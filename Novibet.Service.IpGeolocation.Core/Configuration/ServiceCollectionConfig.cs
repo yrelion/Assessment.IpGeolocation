@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Core.Services;
 

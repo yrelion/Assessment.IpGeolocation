@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Novibet.Service.IpGeolocation.Core.Configuration;
 using Novibet.Service.IpGeolocation.Core.Handlers;
+using Novibet.Service.IpGeolocation.Core.Models;
 using Novibet.Service.IpGeolocation.Proxies.Configuration;
 
 namespace Novibet.Service.IpGeolocation.Configuration
@@ -20,9 +21,14 @@ namespace Novibet.Service.IpGeolocation.Configuration
         {
             // Proxy Settings
             services.Configure<ProxySettings>(configuration.GetSection(ProxySettings.Name));
+            services.Configure<WorkerSettings>(configuration.GetSection(WorkerSettings.Name));
+
             services.Configure<IpStackServiceProxySettings>(configuration.GetSection(IpStackServiceProxySettings.Name));
+            services.Configure<IPGeolocationHostedWorkerSettings>(configuration.GetSection(IPGeolocationHostedWorkerSettings.Name));
+            
             services.AddSingleton(x => x.GetService<IOptions<ProxySettings>>()?.Value);
             services.AddSingleton(x => x.GetService<IOptions<IpStackServiceProxySettings>>()?.Value);
+            services.AddSingleton(x => x.GetService<IOptions<IPGeolocationHostedWorkerSettings>>()?.Value);
 
             // Services
             services.AddCoreServices();

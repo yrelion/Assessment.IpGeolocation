@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Novibet.Service.IpGeolocation.Common.Interfaces;
 using Novibet.Service.IpGeolocation.Common.Models;
+using Novibet.Service.IpGeolocation.Core.Models;
 using Novibet.Service.IpGeolocation.Core.Requests.Commands;
 using Novibet.Service.IpGeolocation.Core.Services;
 using Novibet.Service.IpGeolocation.Data;
@@ -22,7 +23,6 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
         private readonly ICacheProvider _cacheProvider;
         private readonly IPGeolocationBatchUpdateService _batchUpdateService;
         private readonly IServiceScopeFactory _scopeFactory;
-        private GeolocationContext _geolocationContext;
 
         public UpdateBatchIPGeolocationCommandHandler(IMapper mapper, ICacheProvider cacheProvider, 
             IPGeolocationBatchUpdateService batchUpdateService, IServiceScopeFactory scopeFactory)
@@ -48,11 +48,10 @@ namespace Novibet.Service.IpGeolocation.Core.Handlers
 
         private async Task<IPGeolocation> UpdateGeolocation(IPGeolocationUpdateRequest updateRequest)
         {
-            GeolocationContext context;
-
             using (var scope = _scopeFactory.CreateScope())
             {
-                context = scope.ServiceProvider.GetRequiredService<GeolocationContext>();
+                var context = scope.ServiceProvider.GetRequiredService<GeolocationContext>();
+
                 var newGeolocation = _mapper.Map<IPGeolocationDto>(updateRequest);
                 var entity = await context.Geolocations.FindAsync(updateRequest.Ip);
 
