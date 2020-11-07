@@ -1,8 +1,8 @@
-# Novibet IP Geolocation
+# IP Geolocation (Assessment project)
 
 ## Local development setup
 
-Create the database by openning the Package Manager Console in Visual Studio, direct it to the **Novibet.Service.IpGeolocation** project and run the `Update-Database` command.
+Create the database by openning the Package Manager Console in Visual Studio, direct it to the **Assessment.IpGeolocation.Data** project and run the `Update-Database` command.
 
 ## Trying it out
 
