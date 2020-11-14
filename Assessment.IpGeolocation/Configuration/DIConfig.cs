@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Assessment.IpGeolocation.Common.Models;
 using Assessment.IpGeolocation.Core.Configuration;
-using Assessment.IpGeolocation.Core.Handlers;
+using Assessment.IpGeolocation.Core.Requests;
 using Assessment.IpGeolocation.Data.Configuration;
 using Assessment.IpGeolocation.Proxies.Configuration;
 
